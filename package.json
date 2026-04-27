@@ -14,6 +14,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fluentui/font-icons-mdl2": "^8.5.72",
+    "@fluentui/react": "^8.125.5",
     "@fluentui/react-components": "^9.73.8",
     "@fluentui/react-icons": "^2.0.325",
     "react": "^19.2.5",

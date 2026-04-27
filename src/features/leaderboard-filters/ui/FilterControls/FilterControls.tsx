@@ -102,7 +102,6 @@ export function FilterControls({
           placeholder="Search employee..."
           value={filters.search}
           onChange={(_, data) => onSearchChange(data.value)}
-          onClear={() => onSearchChange('')}
         />
       </div>
     </div>

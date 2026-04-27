@@ -1,5 +1,14 @@
 import type { CategoryKey, QuarterKey } from '@/shared/config/constants';
 
+export type CategoryValue = Exclude<CategoryKey, 'all'>;
+
+export interface Activity {
+  name: string;
+  category: CategoryValue;
+  date: string;
+  points: number;
+}
+
 export interface Contributor {
   id: string;
   name: string;
@@ -9,6 +18,7 @@ export interface Contributor {
   presentations: number;
   year: 2024 | 2025;
   quarter: Exclude<QuarterKey, 'all'>;
-  category: Exclude<CategoryKey, 'all'>;
+  categories: CategoryValue[];
   avatarUrl: string;
+  activities: Activity[];
 }

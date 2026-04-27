@@ -77,3 +77,104 @@
 - `npm run lint` — **0 errors**
 - `npm run format:check` → `npm run format` — **4 files auto-fixed**, 0 remaining diffs
 - Dev server started successfully on **http://localhost:5173**
+
+## Step 14: Fix duplicate names in mock data
+**Done.** Each full name was repeating 3–4 times across 100 records due to array sizes being multiples.
+
+**Root cause:** `FIRST_NAMES` had 30 entries and `LAST_NAMES` had 30 entries. With multipliers `i * 7` and `i * 11`, the period of unique combinations is `LCM(30, 30) = 30`, so every combination repeated `100 / 30 ≈ 3–4` times.
+
+**Fix:** Added one entry (`'Campbell'`) to `LAST_NAMES`, making it 31 entries. Now the period is `LCM(30, 31) = 930 > 100`, so all 100 generated names are fully unique.
+
+- File changed: `entities/contributor/model/mock.ts`
+
+## Step 15: Single expanded card in ranked list
+**Done.** Previously each `ContributorRow` managed its own `expanded` state independently — multiple cards could be open simultaneously.
+
+**Approach:** Lifted state up to `RankingList`:
+1. Removed `useState(false)` from `ContributorRow`; replaced with two new required props — `isExpanded: boolean` and `onToggle: () => void`
+2. Added `useState<string | null>(null)` (`expandedId`) to `RankingList`
+3. Each row receives `isExpanded={expandedId === contributor.id}` and `onToggle` that sets `expandedId` to the clicked id, or resets to `null` if the same row is clicked again — ensuring only one card is open at a time
+
+- Files changed: `entities/contributor/ui/ContributorRow/ContributorRow.tsx`, `widgets/ranking-list/ui/RankingList.tsx`
+
+## Step 16: Multiple categories per contributor with icons and tooltips
+
+**Done.** Previously each contributor had a single `category` field; all rows showed the same desktop icon regardless of category.
+
+### Data model change
+- `Contributor.category: string` → `Contributor.categories: Array<Exclude<CategoryKey, 'all'>>`
+- File changed: `entities/contributor/model/types.ts`
+
+### Mock data — deterministic multi-category assignment
+- If `i % 7 === 0` → contributor gets all 3 categories (~14 contributors)
+- If `i % 3 === 0` → contributor gets primary + one extra category (~29 contributors)
+- Otherwise → single primary category (~57 contributors)
+- Extra categories are always the two that the primary isn't, picked by `(primaryIdx + 1) % 3` and `(primaryIdx + 2) % 3`
+- File changed: `entities/contributor/model/mock.ts`
+
+### Filtering update
+- `c.category !== filters.category` → `!c.categories.includes(filters.category)` so filtering returns contributors that have the selected category anywhere in their array
+- File changed: `features/leaderboard-filters/model/useLeaderboardFilters.ts`
+
+### Category icons with tooltips in ContributorRow
+- Added a `CATEGORY_ICON` map (`education` → `BookOpenRegular`, `public_speaking` → `MicRegular`, `university_partners` → `BuildingRegular`) using `FluentIcon` type
+- Added a `CATEGORY_LABEL` map for human-readable names
+- Rendered all contributor categories as brand-colored icons inside a `categoryIcons` span (hidden on ≤480px) — placed between presentations count and score
+- Each icon wrapped in Fluent UI `<Tooltip>` (`relationship="description"`) so hovering shows the category name
+- Expanded section updated: `Category` label replaced with `Categories`, rendering `CATEGORY_LABEL` values joined by `", "`
+- File changed: `entities/contributor/ui/ContributorRow/ContributorRow.tsx`
+
+## Step 17: Category badge redesign — vertical icon + count layout
+
+**Done.** Category icons were shown as flat inline icons without numbers; user wanted a vertical badge layout (icon on top, number below) in brand blue.
+
+- Removed the separate presentations counter (`DesktopRegular` + count)
+- Each category now renders as a flex-column badge: icon (18px) above a count (`Math.round(presentations / categories.length)`), all in `colorBrandForeground1`
+- Hidden on ≤480px screens
+- Distribution tightened: `i % 20 === 5` → 3 categories (5 contributors), `i % 10 === 0` → 2 categories (10 contributors), otherwise 1 category (85 contributors)
+- Files changed: `entities/contributor/model/mock.ts`, `entities/contributor/ui/ContributorRow/ContributorRow.tsx`
+
+## Step 18: Recent Activity panel in expanded card
+
+**Done.** The expanded card previously showed static Year/Quarter/Category/Presentations fields. Replaced with a "RECENT ACTIVITY" table matching a provided design reference.
+
+### Data model
+- Added `CategoryValue` type alias (`Exclude<CategoryKey, 'all'>`) to `types.ts`
+- Added `Activity` interface (`name`, `category`, `date`, `points`) to `types.ts`
+- Added `activities: Activity[]` to `Contributor`
+
+### Mock data — deterministic activity generation
+- Each contributor gets `n = 2 + (i % 3)` activities (2, 3, or 4)
+- Points distributed across activities using weighted random (weights 1–5 per activity) normalized to sum exactly to `contributor.score`, so the total always equals the score shown in the card
+- Activity names generated from per-category template arrays with English names/topics/events/universities:
+  - `education` → `[REG] Mentoring of …` / `[REG] Workshop: …` / etc.
+  - `public_speaking` → `[SPK] Talk at …` / `[SPK] Webinar: …` / etc.
+  - `university_partners` → `[UNI] Lecture for guests from …` / `[UNI] Workshop at …` / etc.
+- Dates generated as `DD-Mon-YYYY` strings (2024–2025 range), deterministic per contributor index
+- File changed: `entities/contributor/model/mock.ts`, `entities/contributor/model/types.ts`
+
+### ContributorRow expanded section
+- Replaced old four-field layout with a CSS Grid table (`1fr 160px 130px 70px`)
+- Header row: ACTIVITY / CATEGORY / DATE / POINTS (uppercase, muted)
+- Each activity row rendered via `flatMap` (flat grid children, no wrapper divs)
+- Category column: pill badge with per-category color — Education `#FFF3E0/E65100`, Public Speaking `#F3E5F5/7B1FA2`, University Partners `#E3F2FD/1565C0`
+- Points column: right-aligned, brand blue, `+N` format
+- File changed: `entities/contributor/ui/ContributorRow/ContributorRow.tsx`
+
+## Step 19: English-only names in activity descriptions
+
+**Done.** `MENTEE_NAMES` in mock data contained Central Asian names. Replaced with 12 common English first + last name combinations (James Carter, Emma Robinson, Noah Mitchell, etc.) so all visible text in activity descriptions is English.
+
+- File changed: `entities/contributor/model/mock.ts`
+
+## Step 20: Dedicated expand/collapse button
+
+**Done.** Previously the entire contributor row was clickable to expand/collapse. Replaced with a dedicated button.
+
+- Removed `onClick`, `role="button"`, `tabIndex`, `onKeyDown` from the row `<div>` — the row is no longer interactive
+- Added a native `<button>` element wrapping the chevron icon, styled via `expandButton` class:
+  - 32×32px, `border-radius: 50px` (circular), 1.5px solid border in `colorNeutralStroke1`
+  - Brand blue chevron; on hover: `colorBrandBackground2` fill + `colorBrandStroke1` border
+  - Border specified as per-side longhand properties (`borderTopWidth` etc.) — required by Griffel's atomic CSS engine
+- `aria-label` toggles between "Collapse" and "Expand" for accessibility
+- File changed: `entities/contributor/ui/ContributorRow/ContributorRow.tsx`

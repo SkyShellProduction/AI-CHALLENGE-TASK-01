@@ -1,4 +1,5 @@
 import { makeStyles, tokens, Text } from '@fluentui/react-components';
+import { useState } from 'react';
 import { ContributorRow } from '@/entities/contributor';
 import type { Contributor } from '@/entities/contributor';
 
@@ -24,6 +25,7 @@ const useStyles = makeStyles({
 
 export function RankingList({ contributors }: RankingListProps) {
   const styles = useStyles();
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (contributors.length === 0) {
     return (
@@ -36,7 +38,15 @@ export function RankingList({ contributors }: RankingListProps) {
   return (
     <div className={styles.root}>
       {contributors.map((contributor, index) => (
-        <ContributorRow key={contributor.id} contributor={contributor} rank={index + 1} />
+        <ContributorRow
+          key={contributor.id}
+          contributor={contributor}
+          rank={index + 1}
+          isExpanded={expandedId === contributor.id}
+          onToggle={() =>
+            setExpandedId((prev) => (prev === contributor.id ? null : contributor.id))
+          }
+        />
       ))}
     </div>
   );
