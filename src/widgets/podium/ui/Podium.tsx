@@ -7,11 +7,11 @@ interface PodiumProps {
   top3: Contributor[];
 }
 
-const PODIUM_HEIGHTS = { 1: 140, 2: 110, 3: 110 };
+const PODIUM_HEIGHTS = { 1: 140, 2: 110, 3: 90 };
 const PODIUM_COLORS = {
   1: 'linear-gradient(160deg, #f9d969 0%, #e8a900 100%)',
   2: 'linear-gradient(160deg, #e8e8e8 0%, #b0b0b0 100%)',
-  3: 'linear-gradient(160deg, #d4a96a 0%, #8b5e2e 100%)',
+  3: 'linear-gradient(160deg, #e8e8e8 0%, #b0b0b0 100%)',
 };
 
 const useStyles = makeStyles({

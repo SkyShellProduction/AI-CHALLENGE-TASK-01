@@ -54,6 +54,8 @@ export function FilterControls({
       <div className={styles.field}>
         <Label className={styles.label}>Year</Label>
         <Select
+          appearance='filled-darker'
+          size='large'
           className={styles.select}
           value={filters.year}
           onChange={(_, data) => onYearChange(data.value as YearKey)}
@@ -69,6 +71,8 @@ export function FilterControls({
       <div className={styles.field}>
         <Label className={styles.label}>Quarter</Label>
         <Select
+          appearance='filled-darker'
+          size='large'
           className={styles.select}
           value={filters.quarter}
           onChange={(_, data) => onQuarterChange(data.value as QuarterKey)}
@@ -84,6 +88,8 @@ export function FilterControls({
       <div className={styles.field}>
         <Label className={styles.label}>Category</Label>
         <Select
+          appearance='filled-darker'
+          size='large'
           className={styles.select}
           value={filters.category}
           onChange={(_, data) => onCategoryChange(data.value as CategoryKey)}
@@ -99,6 +105,8 @@ export function FilterControls({
       <div className={styles.searchField}>
         <Label className={styles.label}>Search employee</Label>
         <SearchBox
+          appearance='filled-darker'
+          size='large'
           placeholder="Search employee..."
           value={filters.search}
           onChange={(_, data) => onSearchChange(data.value)}

@@ -178,3 +178,33 @@
   - Border specified as per-side longhand properties (`borderTopWidth` etc.) — required by Griffel's atomic CSS engine
 - `aria-label` toggles between "Collapse" and "Expand" for accessibility
 - File changed: `entities/contributor/ui/ContributorRow/ContributorRow.tsx`
+
+## Step 21: Row hover highlight
+
+**Done.** Contributor rows had no visual feedback on hover.
+
+- Added a `block` wrapper `<div className={styles.block}>` around each row's existing `row` div
+- `block` style (via `makeStyles`): on `:hover` applies `boxShadow: 0 0 2px colorPaletteBlueBorderActive` and `borderRadius: 12px`
+- File changed: `entities/contributor/ui/ContributorRow/ContributorRow.tsx`
+
+## Step 22: Filter controls visual refresh
+
+**Done.** Filter dropdowns and search box lacked visual weight — appeared as default outline inputs.
+
+- Applied `appearance='filled-darker'` and `size='large'` to all three `<Select>` components (Year, Quarter, Category) and the `<SearchBox>`
+- File changed: `features/leaderboard-filters/ui/FilterControls/FilterControls.tsx`
+
+## Step 23: Podium height and color corrections
+
+**Done.** 3rd-place podium block was incorrectly styled — same height as 2nd place and using a bronze gradient instead of silver.
+
+- Reduced 3rd-place podium height from `110` → `90px` to visually distinguish it from 2nd place
+- Changed 3rd-place gradient to `linear-gradient(160deg, #e8e8e8 0%, #b0b0b0 100%)` (silver), matching 2nd place; bronze gradient removed
+- File changed: `src/widgets/podium/ui/Podium.tsx`
+
+## Step 24: Global font stack in CSS reset
+
+**Done.** The system font stack was missing from the universal reset, so heading and other elements that reset inheritance were not picking it up.
+
+- Added `font-family: Segoe UI, -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif` to the `*` selector in the global CSS reset
+- File changed: `src/app/styles/global.css`

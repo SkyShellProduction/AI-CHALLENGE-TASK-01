@@ -33,6 +33,12 @@ interface ContributorRowProps {
 }
 
 const useStyles = makeStyles({
+  block: {
+    ":hover": {
+        boxShadow: `0 0 2px ${tokens.colorPaletteBlueBorderActive}`,
+        borderRadius: '12px',
+      }
+  },
   row: {
     display: 'flex',
     alignItems: 'center',
@@ -41,6 +47,7 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
     borderRadius: '12px',
     boxShadow: tokens.shadow2,
+   
   },
   rank: {
     minWidth: '28px',
@@ -198,7 +205,7 @@ export function ContributorRow({ contributor, rank, isExpanded, onToggle }: Cont
   const styles = useStyles();
 
   return (
-    <div>
+    <div className={styles.block}>
       <div className={styles.row}>
         <span className={styles.rank}>{rank}</span>
         <Avatar src={contributor.avatarUrl} name={contributor.name} size="sm" />
